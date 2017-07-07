@@ -7,6 +7,7 @@ from __future__ import print_function
 # http://eddmann.com/posts/depth-first-search-and-breadth-first-search-in-python/
 # https://gist.github.com/joninvski/701720https://gist.github.com/joninvski/701720
 # https://jlmedina123.wordpress.com/2014/05/17/floyd-warshall-algorithm-in-python/
+# http://code.activestate.com/recipes/119466-dijkstras-algorithm-for-shortest-paths/
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import subprocess
@@ -123,11 +124,36 @@ def floyd_warshall(graph):
     return dist, pred
 
 
-def djikstra_path(graph, start, end):
-    pass
+def dijkstra_path(graph, start, end, visited=[], distances={}, predecessors={}):
+    """Find the shortest path between start and end nodes in a graph"""
+    # we've found our end node, now find the path to it, and return
+    if start == end:
+        path = []
+        while end != None:
+            path.append(end)
+            end = predecessors.get(end, None)
+        return distances[start], path[::-1]
+    # detect if it's the first time through, set current distance to zero
+    if not visited:
+        distances[start] = 0
+
+    # process neighbors as per algorithm, keep track of predecessors
+    for neighbor in graph[start]:
+        if neighbor not in visited:
+            neighbordist = distances.get(neighbor, float("inf"))
+            tentativedist = distances[start] + graph[start][neighbor]
+            if tentativedist < neighbordist:
+                distances[neighbor] = tentativedist
+                predecessors[neighbor] = start
+    # neighbors processed, now mark the current node as visited
+    visited.append(start)
+    # finds the closest unvisited node to the start
+    unvisiteds = dict((k, distances.get(k, float("inf"))) for k in graph if k not in visited)
+    closestnode = min(unvisiteds, key=unvisiteds.get)
+    # now we can take the closest node and recurse, making it current
+    return dijkstra_path(graph, closestnode, end, visited, distances, predecessors)
 
 
-# http://code.activestate.com/recipes/119466-dijkstras-algorithm-for-shortest-paths/
 def graphviz_plot(graph, fname="tmp_dotgraph.dot", show=True):
     if os.path.exists(fname):
         print("WARNING: Overwriting existing file {} for new plots".format(fname))
@@ -155,13 +181,15 @@ def test_graph_tools():
              'b': {'s': 4, 'a': 2, 'd': 2},
              'c': {'a': 2, 'd': 7, 't': 4},
              'd': {'b': 1, 'c': 11, 't': 5},
-             't': {'c': 3, 'd': 5}}
+             't': {'c': 4, 'd': 5}}
 
     print([p for p in bfs_paths(graph, 'a', 't')])
     print([p for p in dfs_paths(graph, 'a', 't')])
+    print(dijkstra_path(graph, 'a', 't'))
     print(floyd_warshall(graph))
     print(bellman_ford(graph, 'a'))
     graphviz_plot(graph)
+
 
 if __name__ == "__main__":
    test_graph_tools()
