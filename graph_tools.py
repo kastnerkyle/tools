@@ -80,7 +80,7 @@ def relax_bf(node, neighbour, graph, d, p):
         p[neighbour] = node
 
 
-def bellman_ford(graph, source):
+def bellman_ford_paths(graph, source):
     # returns distances and paths
     d, p = initialize_bf(graph, source)
     for i in range(len(graph)-1):
@@ -95,7 +95,7 @@ def bellman_ford(graph, source):
     return d, p
 
 
-def floyd_warshall(graph):
+def floyd_warshall_paths(graph):
     # returns distances and paths
     # Initialize dist and pred:
     # copy graph into dist, but add infinite where there is
@@ -186,8 +186,8 @@ def test_graph_tools():
     print([p for p in bfs_paths(graph, 'a', 't')])
     print([p for p in dfs_paths(graph, 'a', 't')])
     print(dijkstra_path(graph, 'a', 't'))
-    print(floyd_warshall(graph))
-    print(bellman_ford(graph, 'a'))
+    print(floyd_warshall_paths(graph))
+    print(bellman_ford_paths(graph, 'a'))
     graphviz_plot(graph)
 
 
