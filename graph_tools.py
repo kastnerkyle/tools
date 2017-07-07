@@ -1,7 +1,12 @@
 from __future__ import print_function
 # Author: Kyle Kastner
 # License: BSD 3-Clause
-# Using code from the following authors, just collected in one place
+
+# Using code modified from the following authors, collected in one place
+# http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
+# http://eddmann.com/posts/depth-first-search-and-breadth-first-search-in-python/
+# https://gist.github.com/joninvski/701720https://gist.github.com/joninvski/701720
+# https://jlmedina123.wordpress.com/2014/05/17/floyd-warshall-algorithm-in-python/
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import subprocess
@@ -35,9 +40,6 @@ def pe(cmd, shell=False):
         print(line, end="")
 
 
-# http://www.gilles-bertrand.com/2014/03/dijkstra-algorithm-python-example-source-code-shortest-path.html
-# http://eddmann.com/posts/depth-first-search-and-breadth-first-search-in-python/
-# https://gist.github.com/joninvski/701720https://gist.github.com/joninvski/701720
 def _paths(graph, start, end, pop):
     # dfs or bfs depending on pop
     q = [(start, [start])]
@@ -65,16 +67,14 @@ def initialize_bf(graph, source):
     d = {} # Stands for destination
     p = {} # Stands for predecessor
     for node in graph:
-        d[node] = float('Inf') # We start admiting that the rest of nodes are very very far
+        d[node] = float("inf")
         p[node] = None
-    d[source] = 0 # For the source we know how to reach
+    d[source] = 0
     return d, p
 
 
 def relax_bf(node, neighbour, graph, d, p):
-    # If the distance between the node and the neighbour is lower than the one I have now
     if d[neighbour] > d[node] + graph[node][neighbour]:
-        # Record this lower distance
         d[neighbour] = d[node] + graph[node][neighbour]
         p[neighbour] = node
 
@@ -82,19 +82,18 @@ def relax_bf(node, neighbour, graph, d, p):
 def bellman_ford(graph, source):
     # returns distances and paths
     d, p = initialize_bf(graph, source)
-    for i in range(len(graph)-1): #Run this until is converges
+    for i in range(len(graph)-1):
         for u in graph:
-            for v in graph[u]: #For each neighbour of u
-                relax_bf(u, v, graph, d, p) #Lets relax it
+            for v in graph[u]:
+                relax_bf(u, v, graph, d, p)
 
-    # Step 3: check for negative-weight cycles
+    # Check for negative-weight cycles
     for u in graph:
         for v in graph[u]:
             assert d[v] <= d[u] + graph[u][v]
     return d, p
 
 
-# https://jlmedina123.wordpress.com/2014/05/17/floyd-warshall-algorithm-in-python/
 def floyd_warshall(graph):
     # returns distances and paths
     # Initialize dist and pred:
@@ -106,7 +105,7 @@ def floyd_warshall(graph):
         dist[u] = {}
         pred[u] = {}
         for v in graph:
-            dist[u][v] = 1000
+            dist[u][v] = float("inf")
             pred[u][v] = -1
         dist[u][u] = 0
         for neighbor in graph[u]:
@@ -150,16 +149,19 @@ def graphviz_plot(graph, fname="tmp_dotgraph.dot", show=True):
         plt.show()
 
 
-graph = {'s': {'a': 2, 'b': 1},
-         'a': {'s': 3, 'b': 4, 'c': 8},
-         'b': {'s': 4, 'a': 2, 'd': 2},
-         'c': {'a': 2, 'd': 7, 't': 4},
-         'd': {'b': 1, 'c': 11, 't': 5},
-         't': {'c': 3, 'd': 5}}
+def test_graph_tools():
+    graph = {'s': {'a': 2, 'b': 1},
+             'a': {'s': 3, 'b': 4, 'c': 8},
+             'b': {'s': 4, 'a': 2, 'd': 2},
+             'c': {'a': 2, 'd': 7, 't': 4},
+             'd': {'b': 1, 'c': 11, 't': 5},
+             't': {'c': 3, 'd': 5}}
 
-graphviz_plot(graph)
-#print([p for p in bfs_paths(graph, 'a', 't')])
-#print([p for p in dfs_paths(graph, 'a', 't')])
+    print([p for p in bfs_paths(graph, 'a', 't')])
+    print([p for p in dfs_paths(graph, 'a', 't')])
+    print(floyd_warshall(graph))
+    print(bellman_ford(graph, 'a'))
+    graphviz_plot(graph)
 
-#print(floyd_warshall(graph))
-#print(bellman_ford(graph, 'a'))
+if __name__ == "__main__":
+   test_graph_tools()

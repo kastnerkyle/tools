@@ -1,5 +1,3 @@
-raise ValueError("DEPRECATED/FROZEN - see https://github.com/kastnerkyle/tools for the latest")
-
 # License: BSD 3-clause
 # Authors: Kyle Kastner
 # Harvest, Cheaptrick, D4C, WORLD routines based on MATLAB code from M. Morise
