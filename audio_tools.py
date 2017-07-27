@@ -1251,7 +1251,7 @@ def sinusoid_synthesis(frequencies_hz, magnitudes, input_sample_rate=16000,
     return synthesized
 
 
-def compress(X, n_components, window_size=128):
+def dct_compress(X, n_components, window_size=128):
     """
     Compress using the DCT
 
@@ -1288,7 +1288,7 @@ def compress(X, n_components, window_size=128):
     return X_dct
 
 
-def uncompress(X_compressed, window_size=128):
+def dct_uncompress(X_compressed, window_size=128):
     """
     Uncompress a DCT compressed signal (such as returned by ``compress``).
 
@@ -1504,7 +1504,7 @@ def overlap_add(X_strided, window_step, wsola=False):
     return X
 
 
-def overlap_compress(X, n_components, window_size):
+def overlap_dct_compress(X, n_components, window_size):
     """
     Overlap (at 50% of window_size) and compress X.
 
@@ -1533,7 +1533,7 @@ def overlap_compress(X, n_components, window_size):
 
 # Evil voice is caused by adding double the zeros before inverse DCT...
 # Very cool bug but makes sense
-def overlap_uncompress(X_compressed, window_size):
+def overlap_dct_uncompress(X_compressed, window_size):
     """
     Uncompress X as returned from ``overlap_compress``.
 
@@ -2291,7 +2291,7 @@ def harvest_merge_f0(multichannel_f0, rrange, f0_candidates, f0_scores):
     for i in range(1, number_of_channels):
         if rrange[sorted_order[i], 0] - rrange[sorted_order[0], 1] > 0:
             # no overlapping
-            f0[rrange[sorted_order[i], 0]:rrange[sorted_order[i], 1]] = multichannel_f0[sorted_order[i], rrange[sorted_order[i], 0]:rrange[sorted_order[i], 1]]
+            f0[int(rrange[sorted_order[i], 0]):int(rrange[sorted_order[i], 1])] = multichannel_f0[sorted_order[i], int(rrange[sorted_order[i], 0]):int(rrange[sorted_order[i], 1])]
             cp = rrange.copy()
             rrange[sorted_order[0], 0] = cp[sorted_order[i], 0]
             rrange[sorted_order[0], 1] = cp[sorted_order[i], 1]
@@ -3709,8 +3709,8 @@ def run_lpc_example():
 
     samplerate, X = fetch_sample_music()
 
-    c = overlap_compress(X, 200, 400)
-    X_r = overlap_uncompress(c, 400)
+    c = overlap_dct_compress(X, 200, 400)
+    X_r = overlap_dct_uncompress(c, 400)
     wavfile.write('lpc_uncompress.wav', samplerate, soundsc(X_r))
 
     print("Calculating sinusoids")
@@ -3739,12 +3739,12 @@ def run_lpc_example():
                 lsf = lpc_to_lsf(a)
                 # Not window_size - window_step! Need to implement overlap
                 print("Calculating compression")
-                c = compress(e, n_components=dct_components,
+                c = dct_compress(e, n_components=dct_components,
                              window_size=window_step)
-                co = overlap_compress(e, n_components=dct_components,
+                co = overlap_dct_compress(e, n_components=dct_components,
                                       window_size=window_step)
-                block_excitation = uncompress(c, window_size=window_step)
-                overlap_excitation = overlap_uncompress(co,
+                block_excitation = dct_uncompress(c, window_size=window_step)
+                overlap_excitation = overlap_dct_uncompress(co,
                                                         window_size=window_step)
                 a_r = lsf_to_lpc(lsf)
                 f, m = lpc_to_frequency(a_r, g)
