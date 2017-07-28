@@ -2581,7 +2581,7 @@ def cheaptrick(x, fs, temporal_positions, f0_sequence,
     spectrogram = np.zeros((int(fft_size / 2.) + 1, len(f0_sequence)))
     for i in range(len(f0_sequence)):
         if f0_sequence[i] < f0_low_limit:
-            f0_sequence[i] = default_d0
+            f0_sequence[i] = default_f0
         spectrogram[:, i] = cheaptrick_estimate_one_slice(x, fs, f0_sequence[i],
                 temporal_positions[i], fft_size, q1)
     return temporal_positions, spectrogram.T, fs
